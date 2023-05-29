@@ -1,7 +1,7 @@
 // src/routes/index.js
 
 // Our authentication middleware
-const { authenticate } = require('../authentication');
+const { authenticate } = require('../authorization');
 
 const express = require('express');
 
