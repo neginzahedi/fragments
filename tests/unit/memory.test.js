@@ -1,6 +1,15 @@
 // Fix this path to point to your project's `memory-db.js` source file
 const MemoryDB = require('../../src/model/data/memory/memory-db');
 
+const {
+  listFragments,
+  writeFragment,
+  readFragment,
+  writeFragmentData,
+  readFragmentData,
+  deleteFragment,
+} = require('../../src/model/data/memory/index');
+
 describe('memory-db', () => {
   let db;
 
@@ -87,4 +96,94 @@ describe('memory-db', () => {
     expect(async () => await db.del(1)).rejects.toThrow();
     expect(async () => await db.del(1, 1)).rejects.toThrow();
   });
+
+  // New unit tests for the index.js file
+
+  test('writeFragment() writes fragment metadata to memory db', async () => {
+    const fragment = {
+      ownerId: 'user1',
+      id: 'fragment1',
+      data: { value: 123 },
+    };
+
+    await writeFragment(fragment);
+
+    const result = await readFragment(fragment.ownerId, fragment.id);
+    expect(result).toEqual(fragment);
+  });
+
+  test('readFragment() reads fragment metadata from memory db', async () => {
+    const fragment = {
+      ownerId: 'user1',
+      id: 'fragment1',
+      data: { value: 123 },
+    };
+
+    await writeFragment(fragment);
+
+    const result = await readFragment(fragment.ownerId, fragment.id);
+    expect(result).toEqual(fragment);
+  });
+
+  test('writeFragmentData() writes fragment data to memory db', async () => {
+    const ownerId = 'user1';
+    const id = 'fragment1';
+    const data = Buffer.from([1, 2, 3]);
+
+    await writeFragmentData(ownerId, id, data);
+
+    const result = await readFragmentData(ownerId, id);
+    expect(result).toEqual(data);
+  });
+
+  test('readFragmentData() reads fragment data from memory db', async () => {
+    const ownerId = 'user1';
+    const id = 'fragment1';
+    const data = Buffer.from([1, 2, 3]);
+
+    await writeFragmentData(ownerId, id, data);
+
+    const result = await readFragmentData(ownerId, id);
+    expect(result).toEqual(data);
+  });
+
+  test('listFragments() returns a list of fragment ids/objects for the given user', async () => {
+    const ownerId = 'user1';
+
+    const fragment1 = { ownerId, id: 'fragment1', data: { value: 1 } };
+    const fragment2 = { ownerId, id: 'fragment2', data: { value: 2 } };
+    const fragment3 = { ownerId, id: 'fragment3', data: { value: 3 } };
+
+    await writeFragment(fragment1);
+    await writeFragment(fragment2);
+    await writeFragment(fragment3);
+
+    const result = await listFragments(ownerId);
+    expect(result).toEqual(['fragment1', 'fragment2', 'fragment3']);
+  });
+
+  test('listFragments() returns an empty array for a user with no fragments', async () => {
+    const ownerId = 'user_without_fragments';
+    const result = await listFragments(ownerId);
+    expect(result).toEqual([]);
+  });
+  
+
+  test('deleteFragment() deletes fragment metadata and data from memory db', async () => {
+    const ownerId = 'user1';
+    const id = 'fragment1';
+    const data = Buffer.from([1, 2, 3]);
+
+    await writeFragmentData(ownerId, id, data);
+
+    await deleteFragment(ownerId, id);
+
+    const metadataResult = await readFragment(ownerId, id);
+    const dataResult = await readFragmentData(ownerId, id);
+
+    expect(metadataResult).toBe(undefined);
+    expect(dataResult).toBe(undefined);
+  });
+
 });
+
