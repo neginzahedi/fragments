@@ -18,6 +18,7 @@ module.exports = async (req, res, next) => {
 
     const location = `${process.env.API_URL}/v1/fragments/${fragment.id}`;
     res.location(location);
+    
     res.status(201).json(createSuccessResponse({ fragment }));
    } catch (error) {
      next(error);

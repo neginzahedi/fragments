@@ -12,7 +12,7 @@ const {
   writeFragmentData,
   listFragments,
   deleteFragment,
-} = require('./data');
+} = require('./data/memory');
 
 const validTypes = {
     txt: 'text/plain',
@@ -36,10 +36,17 @@ class Fragment {
         throw Error('type is not supported!');
       }
   
-      if (!Number.isInteger(size) || size < 0) {
-        throw Error('size does not have a valid value!');
+      if (size) {
+        // will be sure size to be a number and have a value greater than -1
+        if (Number.isInteger(size) && size > -1) {
+          this.size = size;
+        } else {
+          throw Error('size does not have valid value!');
+        }
+      } else {
+        this.size = 0;
       }
-  
+
       this.id = id || randomUUID();
       this.ownerId = ownerId;
       this.created = created || new Date().toISOString();
@@ -55,7 +62,6 @@ class Fragment {
    * @returns Promise<Array<Fragment>>
    */
   static async byUser(ownerId, expand = false) {
-    // TODO
     try {
         return await listFragments(ownerId, expand);
       } catch (error) {
@@ -70,9 +76,7 @@ class Fragment {
    * @returns Promise<Fragment>
    */
   static async byId(ownerId, id) {
-    // TODO
     const fragment = await readFragment(ownerId, id);
-
     if (!fragment) {
       throw new Error('There is no fragment with provided ownerId or id.');
     }
@@ -86,7 +90,6 @@ class Fragment {
    * @returns Promise<void>
    */
   static delete(ownerId, id) {
-    // TODO
     return deleteFragment(ownerId, id);
   }
 
@@ -95,7 +98,6 @@ class Fragment {
    * @returns Promise<void>
    */
   async save() {
-    // TODO
     this.updated = new Date().toISOString();
     return await writeFragment(this);
   }
@@ -105,7 +107,6 @@ class Fragment {
    * @returns Promise<Buffer>
    */
   async getData() {
-    // TODO
     return await readFragmentData(this.ownerId, this.id);
   }
 
@@ -115,7 +116,6 @@ class Fragment {
    * @returns Promise<void>
    */
   async setData(data) {
-    // TODO
     if (!(data instanceof Buffer)) {
         throw new Error('Data must be an instance of Buffer.');
       }
@@ -140,7 +140,6 @@ class Fragment {
    * @returns {boolean} true if fragment's type is text/*
    */
   get isText() {
-    // TODO
     return this.mimeType.startsWith('text/');
   }
 
@@ -149,7 +148,6 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    // TODO
     let mimeTypes = [];
 
     switch (this.type) {
@@ -184,7 +182,6 @@ class Fragment {
    * @returns {boolean} true if we support this Content-Type (i.e., type/subtype)
    */
   static isSupportedType(value) {
-    // TODO
     return Object.values(validTypes).includes(value);
   }
 }
