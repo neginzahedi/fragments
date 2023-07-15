@@ -1,16 +1,14 @@
 // src/routes/api/get.js
-const { createSuccessResponse } = require('../../response');
-//const logger = require('../../logger');
-//const Fragment = require('../../model/fragment');
-const { listFragments } = require('../../model/data/memory');
-
-/**
- * Get a list of fragments for the current user
- */
+const { createSuccessResponse, createErrorResponse } = require('../../response');
+const logger = require('../../logger');
+const Fragment = require('../../model/fragment');
 
 module.exports = async (req, res) => {
-  const fragments = await listFragments(req.user);
-  console.log("here is fragments!")
-  console.log(fragments)
-  res.status(200).json(createSuccessResponse({ fragments }));
+  try {
+    const fragments = await Fragment.byUser(req.user, req.query.expand === '1');
+    logger.debug({ fragments }, 'GET /fragments');
+    res.status(200).json(createSuccessResponse({ fragments }));
+  } catch (error) {
+    res.status(404).json(createErrorResponse(404, error.message));
+  }
 };
