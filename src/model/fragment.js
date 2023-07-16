@@ -4,6 +4,8 @@ const { randomUUID } = require('crypto');
 // Use https://www.npmjs.com/package/content-type to create/parse Content-Type headers
 const contentType = require('content-type');
 
+var md = require('markdown-it')();
+
 // Functions for working with fragment metadata/data using our DB
 const {
   readFragment,
@@ -15,44 +17,44 @@ const {
 } = require('./data/memory');
 
 const validTypes = {
-    txt: 'text/plain',
-    txtCharset: 'text/plain; charset=utf-8',
-    md: 'text/markdown',
-    html: 'text/html',
-    json: 'application/json',
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    webp: 'image/webp',
-    gif: 'image/gif',
+  txt: 'text/plain',
+  txtCharset: 'text/plain; charset=utf-8',
+  md: 'text/markdown',
+  html: 'text/html',
+  json: 'application/json',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  webp: 'image/webp',
+  gif: 'image/gif',
 };
 
 class Fragment {
   constructor({ id, ownerId, created, updated, type, size = 0 }) {
     if (!ownerId || !type) {
-        throw Error('ownerId or type is missing!');
-      }
-  
-      if (!Fragment.isSupportedType(type)) {
-        throw Error('type is not supported!');
-      }
-  
-      if (size) {
-        // will be sure size to be a number and have a value greater than -1
-        if (Number.isInteger(size) && size > -1) {
-          this.size = size;
-        } else {
-          throw Error('size does not have valid value!');
-        }
-      } else {
-        this.size = 0;
-      }
+      throw Error('ownerId or type is missing!');
+    }
 
-      this.id = id || randomUUID();
-      this.ownerId = ownerId;
-      this.created = created || new Date().toISOString();
-      this.updated = updated || new Date().toISOString();
-      this.type = type;
-      this.size = size;  
+    if (!Fragment.isSupportedType(type)) {
+      throw Error('type is not supported!');
+    }
+
+    if (size) {
+      // will be sure size to be a number and have a value greater than -1
+      if (Number.isInteger(size) && size > -1) {
+        this.size = size;
+      } else {
+        throw Error('size does not have valid value!');
+      }
+    } else {
+      this.size = 0;
+    }
+
+    this.id = id || randomUUID();
+    this.ownerId = ownerId;
+    this.created = created || new Date().toISOString();
+    this.updated = updated || new Date().toISOString();
+    this.type = type;
+    this.size = size;
   }
 
   /**
@@ -63,10 +65,10 @@ class Fragment {
    */
   static async byUser(ownerId, expand = false) {
     try {
-        return await listFragments(ownerId, expand);
-      } catch (error) {
-        throw new Error('Can not get fragments for the current user.');
-      }
+      return await listFragments(ownerId, expand);
+    } catch (error) {
+      throw new Error('Can not get fragments for the current user.');
+    }
   }
 
   /**
@@ -117,12 +119,12 @@ class Fragment {
    */
   async setData(data) {
     if (!(data instanceof Buffer)) {
-        throw new Error('Data must be an instance of Buffer.');
-      }
-  
-      this.size = data.length;
-      this.updated = new Date().toISOString();
-      return await writeFragmentData(this.ownerId, this.id, data);
+      throw new Error('Data must be an instance of Buffer.');
+    }
+
+    this.size = data.length;
+    this.updated = new Date().toISOString();
+    return await writeFragmentData(this.ownerId, this.id, data);
   }
 
   /**
@@ -183,6 +185,34 @@ class Fragment {
    */
   static isSupportedType(value) {
     return Object.values(validTypes).includes(value);
+  }
+  /**
+   * returns true if the extension is supported
+   *  */
+  static isSupportedExt(value) {
+    return Object.keys(validTypes).includes(value);
+  }
+
+  /**
+   * return the type by using its extension
+   *  */
+  static extValidType(ext) {
+    return validTypes[ext];
+  }
+
+  /**
+   * return the converted fragment data after checking type of conversion
+   *  */
+  convertData(fragmentData, conversionType) {
+    switch (conversionType) {
+      case 'text/plain':
+        return fragmentData.toString();
+      case 'text/html':
+        if (this.type === 'text/markdown') return md.render(fragmentData.toString());
+        return fragmentData;
+      default:
+        return fragmentData;
+    }
   }
 }
 
