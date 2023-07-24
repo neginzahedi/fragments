@@ -26,6 +26,7 @@ const getFragmentById = async (req, res) => {
 
     if (!ext) {
       logger.debug({ fragment }, 'GET /fragments/:id');
+      res.setHeader('Content-Type', fragment.type); // Set the correct "Content-Type" header based on the fragment type
       res.status(200).send(fragmentData.toString());
     } else {
       logger.debug({ id: id, ext: ext }, 'GET /fragments/:id.ext');
