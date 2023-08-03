@@ -1,5 +1,5 @@
  # tests/integration/lab-9-s3.hurl
- # Authenticated POST to /v1/fragments
+ # Authenticated POST to /v1/fragments this is test
  POST http://localhost:8080/v1/fragments
  # user1@email.com:password1
  Authorization: Basic dXNlcjFAZW1haWwuY29tOnBhc3N3b3JkMQ==
