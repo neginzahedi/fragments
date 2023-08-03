@@ -1,38 +1,23 @@
+# docker-compose.yml
 services:
   fragments:
+    image: ${DOCKER_REPO}:${DOCKER_TAG}
     init: true
-    build: .
+    ports:
+      - '80:8080'
     environment:
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
-      - AWS_SESSION_TOKEN=test
-      - AWS_DEFAULT_REGION=us-east-1
-      - API_URL=http://localhost:8080
-      - HTPASSWD_FILE=tests/.htpasswd
-      - LOG_LEVEL=${LOG_LEVEL:-debug}
-      # NOTE: we use Docker's internal network to the localstack container
-      - AWS_S3_ENDPOINT_URL=http://localstack:4566
-      # Use the DynamoDB local endpoint vs. AWS for DynamoDB AWS SDK clients.
-      - AWS_DYNAMODB_ENDPOINT_URL=http://dynamodb-local:8000
-      # This S3 bucket and DynamoDB table need to get created first, see
-      # local-aws-setup.sh. We'll default to 'fragments' as the name, unless
-      # something else is defined in the env.
+      - NODE_ENV=production
+      # Use whatever LOG_LEVEL is set to, or `info` as a default if not set
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      # Default to use `us-east-1`, which will also pick the AWS data backend
+      - AWS_REGION=us-east-1
+      # Allow the following variables to be forwarded into the container from the env if set
+      - AWS_COGNITO_POOL_ID
+      - AWS_COGNITO_CLIENT_ID
+      # We'll typically want to use Cognito, but we can pass this instead for testing
+      - HTPASSWD
+      # We'll forward Elastic Beanstalk Environment's URL
+      - API_URL
+      # The S3 Bucket to use, default to `fragments` if missing
       - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME:-fragments}
       - AWS_DYNAMODB_TABLE_NAME=${AWS_DYNAMODB_TABLE_NAME:-fragments}
-    ports:
-      - '8080:8080'
-
-  # DynamoDB Local, see: https://hub.docker.com/r/amazon/dynamodb-local
-  dynamodb-local:
-    image: amazon/dynamodb-local
-    ports:
-      - '8000:8000'
-    command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
-
-  localstack:
-    image: localstack/localstack
-    ports:
-      - '4566:4566'
-    environment:
-      - SERVICES=s3
-      - DEFAULT_REGION=us-east-1
