@@ -102,7 +102,7 @@ jobs:
            run: docker-compose -f docker-compose.offline.yml up -d
          - name: Setup Local AWS Resources
            run: ./scripts/local-aws-setup.sh
-         - name: Run Hurl Tests
+         - name: Run Hurl Testss
            run: npm run test:integration
 
    docker-hub:
