@@ -71,7 +71,15 @@ jobs:
         # 2. Use `install-ci-test` to do it in a single command, see https://docs.npmjs.com/cli/v8/commands/npm-install-ci-test
         # run: npm install-ci-test
         run: npm install-ci-test
+  install-hurl:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: gacts/install-hurl@v1
+        #with:
+        #  version: 1.2.0 # `latest` by default, but you can set a specific version to install, e.g.: `1.6.0`
 
+      - run: hurl version # any hurl command can be executed
+      
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
