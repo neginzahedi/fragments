@@ -27,7 +27,7 @@ services:
     image: amazon/dynamodb-local
     ports:
       - '8000:8000'
-    command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
+    command: [ '-jar', 'DynamoDBLocal.jar', '-inMemory' ]
 
   localstack:
     image: localstack/localstack
