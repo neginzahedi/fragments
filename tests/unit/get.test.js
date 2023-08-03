@@ -53,7 +53,7 @@ describe('GET /v1/fragments/:id', () => {
       .get(`/v1/fragments/randomId`)
       .auth('user1@email.com', 'password1');
 
-    expect(res.statusCode).toBe(500);
+    expect(res.statusCode).toBe(404);
   });
 });
 
@@ -175,6 +175,6 @@ describe('GET /v1/fragments/:id/info', () => {
       .get(`/v1/fragments/randomId/info`)
       .auth('user1@email.com', 'password1');
 
-    expect(res.statusCode).toBe(500);
+    expect(res.statusCode).toBe(404);
   });
 });
