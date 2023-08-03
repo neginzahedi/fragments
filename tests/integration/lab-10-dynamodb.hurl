@@ -36,7 +36,7 @@ jsonpath "$.fragment.updated" isString
 POST http://localhost:8080/v1/fragments
 Authorization: Basic dXNlcjFAZW1haWwuY29tOnBhc3N3b3JkMQ==
 Content-Type: text/markdown
-```DynamoDB is **great**.```
+`DynamoDB is **great**.`
 
 # 5. Confirm that the server returns a 201, and once again capture the 
 # Location header value and the second id in variables named fragment2_url 
