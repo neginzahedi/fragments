@@ -6,7 +6,7 @@
  # We're sending a plain text fragment
  Content-Type: text/plain
  # Body of the request goes in ```...``` when it's a string
- `Hello S3!`
+ ```Hello S3!```
 
  # We expect to get back an HTTP 201
  HTTP/1.1 201
